@@ -1,0 +1,49 @@
+---
+title: "mean_variance_95c"
+format: html
+---
+
+# Explanation:
+
+How to calculate the mean, variance and 95% CI of the mean
+
+# Data
+
+```{r}
+mean_value <- 10  # Mean of the distribution
+sd_value <- 2     # Standard deviation of the distribution
+sample_size <- 100  # Number of data points
+
+# Generate random numbers from a normal distribution
+data <- rnorm(n = sample_size, mean = mean_value, sd = sd_value)
+```
+
+# Calculate the mean
+
+```{r}
+mean_value <- mean(data)
+cat("Mean:", mean_value, "\n")
+```
+
+# Calculate the variance
+
+```{r}
+variance_value <- var(data)
+cat("Variance:", variance_value, "\n")
+paste0("Variance of 0 means no deviation of variables away from the mean")
+paste0("Variance of 100 means there is a large level of deviation of individual values away from the mean")
+paste0("This essentially means in a bell shaped curve how big are the tails at either end and how high/steep is the mid point")
+```
+
+# Calculate 95% confidence interval
+
+here we need to make sure that as we are using a t-test that the distribution of the data assumes a normal distribution, and for small sample sizes, it's appropriate for relatively symmetric datasets.
+
+```{r}
+confidence_interval <- t.test(data)$conf.int
+cat("95% Confidence Interval:", confidence_interval[1], "-", confidence_interval[2], "\n")
+paste0("(t-test so assuming a normal distribution and not for small sample sizes)")
+paste0("The closer the values are to the mean the better, normally improves the greater the sample size")
+paste0("95% CI are essentially how much wiggle room you have around the mean")
+paste0("If two intervals of two means do not overlap i.e. lifespan of fish1 and fish2, then we can assume quickly that they are significantly different without any significance testing required.")
+```
