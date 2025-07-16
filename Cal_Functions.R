@@ -3490,7 +3490,6 @@ get_most_common <- function(x) {
 
 # cal_condense ----
 library(rlang)
-rm(table)
 cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
   # Helper: get most common value
   get_most_common <- function(x) {
