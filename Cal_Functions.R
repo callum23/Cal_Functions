@@ -3456,3 +3456,73 @@ cal_fast_unique <- function(df, sep = "|") {
 
 # apply it
 #unique_df <- cal_fast_unique(my_dataframe)
+
+
+
+
+
+
+# Get the most frequent between rows seperated by " : " ----
+# Function to get the most frequent group
+get_most_common <- function(x) {
+  parts <- trimws(unlist(strsplit(x, " : ")))
+  tab <- table(parts)
+  names(tab)[which.max(tab)]
+}
+
+# # Sample data
+# x <- data.frame(
+#   ethnicity = c(
+#     "black : white : white : white : white : white : white : white : white",
+#     "asian : asian : black : asian : asian",
+#     "mixed : mixed : mixed : white",
+#     "white : white : white : white",
+#     "black : black : white : white"
+#   ),
+#   stringsAsFactors = FALSE
+# )
+# 
+# # Apply function
+# x$dominant_ethnicity <- sapply(x$ethnicity, get_most_common)
+# 
+# print(x)
+
+
+# cal_condense ----
+library(rlang)
+cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
+  # Helper: get most common value
+  get_most_common <- function(x) {
+    parts <- trimws(unlist(strsplit(x, " : ")))
+    tab <- table(parts)
+    names(tab)[which.max(tab)]
+  }
+  data %>%
+    group_by({{grouped_var}}) %>%
+    summarize(
+      !!new_name := paste0(get({{var_to_collapse}}), collapse = " : "),
+      !!paste0("dominant_", new_name) := get_most_common(paste0(get({{var_to_collapse}}), collapse = " : "))
+    )
+}
+
+# # Sample data
+# df <- data.frame(
+#   id = c(1,1,1,1,1,1,1,1,1,
+#          2,2,2,2,2,
+#          3,3,3,3,
+#          4,4,4,4,
+#          5,5,5,5),
+#   ethnicity = c(
+#     "black", "white", "white", "white", "white", "white", "white", "white", "white",
+#     "asian", "asian", "black", "black", "black",
+#     "mixed", "mixed", "mixed", "white",
+#     "white", "white", "black", "black",
+#     "black", "black", "white", "white"
+#   ),
+#   stringsAsFactors = FALSE
+# )
+# 
+# # Call the function
+# result <- cal_condense(df, grouped_var = id, var_to_collapse = "ethnicity", new_name = "ethnicity")
+# 
+# print(result)
