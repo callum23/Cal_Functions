@@ -114,17 +114,17 @@ age_group_trends <- function() {
   
 }
 #_______________________________________________________________________________
-
-table <- function() {
-  
-table <- test_method_by_species %>%
-  mutate(organism_species_name = toupper(organism_species_name)) %>%
-  filter(organism_species_name == name)  %>%
-  mutate(total = `2015`+`2016`+`2017`+`2018`+`2019`+`2020`+`2021`) %>%
-  arrange(desc(total)) %>%
-  select(-total)
-
-}
+#
+# table <- function() {
+#   
+# table <- test_method_by_species %>%
+#   mutate(organism_species_name = toupper(organism_species_name)) %>%
+#   filter(organism_species_name == name)  %>%
+#   mutate(total = `2015`+`2016`+`2017`+`2018`+`2019`+`2020`+`2021`) %>%
+#   arrange(desc(total)) %>%
+#   select(-total)
+# 
+# }
 #_______________________________________________________________________________
 
 age_perc <- function() {
