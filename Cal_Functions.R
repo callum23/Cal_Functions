@@ -3505,24 +3505,24 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
     )
 }
 
-# Sample data
-df <- data.frame(
-  id = c(1,1,1,1,1,1,1,1,1,
-         2,2,2,2,2,
-         3,3,3,3,
-         4,4,4,4,
-         5,5,5,5),
-  ethnicity = c(
-    "black", "white", "white", "white", "white", "white", "white", "white", "white",
-    "asian", "asian", "black", "black", "black",
-    "mixed", "mixed", "mixed", "white",
-    "white", "white", "black", "black",
-    "black", "black", "white", "white"
-  ),
-  stringsAsFactors = FALSE
-)
-
-# Call the function
-result <- cal_condense(df, grouped_var = id, var_to_collapse = "ethnicity", new_name = "ethnicity")
-
-print(result)
+# # Sample data
+# df <- data.frame(
+#   id = c(1,1,1,1,1,1,1,1,1,
+#          2,2,2,2,2,
+#          3,3,3,3,
+#          4,4,4,4,
+#          5,5,5,5),
+#   ethnicity = c(
+#     "black", "white", "white", "white", "white", "white", "white", "white", "white",
+#     "asian", "asian", "black", "black", "black",
+#     "mixed", "mixed", "mixed", "white",
+#     "white", "white", "black", "black",
+#     "black", "black", "white", "white"
+#   ),
+#   stringsAsFactors = FALSE
+# )
+# 
+# # Call the function
+# result <- cal_condense(df, grouped_var = id, var_to_collapse = "ethnicity", new_name = "ethnicity")
+# 
+# print(result)
