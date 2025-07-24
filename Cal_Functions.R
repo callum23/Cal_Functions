@@ -3526,3 +3526,104 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 # result <- cal_condense(df, grouped_var = id, var_to_collapse = "ethnicity", new_name = "ethnicity")
 # 
 # print(result)
+
+
+
+
+# cal_forest_plot
+
+# first you will need to do x <- tbl_summary(df)
+# this is still missing the 95% CI call
+
+# updated forest plot
+
+
+
+cal_forest_plot <- function(x,
+                            col_names = c("estimate", "ci", "p.value"),
+                            graph.pos = 2,
+                            boxsize = 0.3,
+                            title_line_color = "darkblue",
+                            xlog = x$inputs$exponentiate,
+                            ...) {
+  if (!requireNamespace("forestplot", quietly = TRUE)) {
+    stop("Package 'forestplot' is required for as_forest_plot()", call. = FALSE)
+  }
+  if (!inherits(x, c("tbl_regression", "tbl_uvregression"))) {
+    stop("`x=` must be class 'tbl_regression' or 'tbl_uvregression'", call. = FALSE)
+  }
+  
+  ###################################
+  # Output the main text part table #
+  ###################################
+  txt_tb1 <-
+    x %>%
+    gtsummary::modify_column_unhide() %>%
+    gtsummary::modify_fmt_fun(contains("stat") ~ gtsummary::style_number) %>%
+    gtsummary::as_tibble(col_labels = FALSE)
+  
+  ############################################################
+  # Prepare the header of the text part (only one line here) #
+  ############################################################
+  txt_tb2 <-
+    x %>%
+    gtsummary::modify_column_unhide() %>%
+    gtsummary::as_tibble() %>%
+    names()
+  
+  ### remove the gt bold sign "**" from the header
+  ### And add a summary indicating variable
+  txt_tb2 <-
+    data.frame(matrix(gsub("\\**", "", txt_tb2), nrow = 1), stringsAsFactors = FALSE)
+  names(txt_tb2) <- names(txt_tb1)
+  
+  txt_tb <- dplyr::bind_rows(txt_tb2, txt_tb1)
+  
+  #################################################
+  # Combine the forest plot stats with the txt_tb #
+  #################################################
+  line_stats <-
+    x$table_body %>%
+    select(all_of(c("estimate", "conf.low", "conf.high"))) %>%
+    dplyr::rename_with(~paste0(., "_num")) %>%
+    tibble::add_row(.before = 0)
+  
+  ## form the forest plot input matrix ###
+  forestplot_tb <-
+    dplyr::bind_cols(txt_tb, line_stats) %>%
+    mutate(..summary_row.. = dplyr::row_number() == 1L)
+  
+  # --- ADD ci column manually ---
+  # Insert NA for header row to align rows
+  ci_with_header <- c(NA, x$table_body$ci)
+  forestplot_tb$ci <- ci_with_header
+  
+  ###############################################
+  # Create forest plot and save necessary stats #
+  ###############################################
+  ### Create the labeltext input  ##
+  label_txt <- forestplot_tb %>% select(all_of(c("label", col_names)))
+  
+  forestplot.obj <-
+    forestplot_tb %>%
+    forestplot::forestplot(
+      mean = "estimate_num",
+      lower = "conf.low_num",
+      upper = "conf.high_num",
+      graph.pos = graph.pos,
+      lwd.zero = 2,
+      boxsize = boxsize,
+      labeltext = label_txt,
+      graphwidth = grid::unit(5, "cm"),
+      is.summary = "..summary_row..",
+      hrzl_lines = list("2" = grid::gpar(lwd = 2, col = title_line_color)),
+      xlog = xlog,
+      ...
+    )
+  
+  ## plot the forestplot if not saving ##
+  forestplot.obj
+}
+
+
+
