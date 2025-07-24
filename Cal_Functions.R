@@ -3626,4 +3626,23 @@ cal_forest_plot <- function(x,
 }
 
 
+# insert_blank_rows 
 
+insert_blank_rows <- function(df, group_col) {
+  out <- list()
+  groups <- unique(df[[group_col]])
+  for (grp in groups) {
+    subset_df <- df %>% filter(!!rlang::sym(group_col) == grp)
+    out <- append(out, list(subset_df))
+    if (grp != tail(groups, 1)) {
+      blank_row <- subset_df[1, ]
+      blank_row[] <- NA
+      blank_row$name_display <- " "
+      out <- append(out, list(blank_row))
+    }
+  }
+  bind_rows(out)
+}
+
+
+#insert_blank_rows(df, "var")
