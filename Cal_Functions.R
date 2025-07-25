@@ -3652,6 +3652,12 @@ insert_blank_rows <- function(df, group_col) {
 #########################
 # cal_forestplot ----
 #########################
+
+
+# i am overwriting the ggfoerst function cheeky i know
+cal_forestplot <- forestplot
+
+# how to use
 library(ggforce)
 library(ggforestplot)
 library(dplyr)
@@ -3659,66 +3665,62 @@ library(tidyr)
 library(purrr)
 library(broom)
 
-# i am overwriting the ggfoerst function cheeky i know
-cal_forestplot <- forestplot
-
-# how to use
-# Simulate base data
-set.seed(123)
-n <- 100
-df <- tibble(
-  biomarker = rnorm(n),
-  trait1 = biomarker * 0.3 + rnorm(n),
-  trait2 = biomarker * -0.2 + rnorm(n),
-  trait3 = biomarker * 0.5 + rnorm(n),
-  group = sample(c("Metabolic", "Inflammatory"), size = n, replace = TRUE)
-)
-
-# Reshape data to long format
-df_long <- df %>%
-  pivot_longer(cols = starts_with("trait"), names_to = "trait", values_to = "outcome")
-
-# Fit GLMs per trait x group
-zzz <- df_long %>%
-  group_by(trait, group) %>%
-  nest() %>%
-  mutate(
-    model = map(data, ~ glm(outcome ~ biomarker, data = .x)),
-    results = map(model, ~ broom::tidy(.x)[2, ])
-  ) %>%
-  unnest(results) %>%
-  transmute(
-    name = paste(trait, group, sep = "_"),
-    trait = factor(trait),
-    group = factor(group),
-    beta = estimate,
-    se = std.error,
-    pvalue = p.value
-  ) %>%
-  # 👇 Factor `name` outside of grouping to avoid conflicting class errors
-  ungroup() %>%
-  mutate(name = factor(name, levels = unique(name), ordered = TRUE))
-
-glimpse(zzz)
-# name   ||> <chr>
-# trait  ||> <fct> 
-# group  ||> <fct> 
-# beta   ||> <dbl> 
-# se     ||> <dbl> 
-# pvalue ||> <dbl>
-
-
-# Draw a forestplot of cross-sectional, linear associations.
-cal_forestplot(
-  df = zzz,
-  estimate = beta,
-  pvalue = pvalue,
-  psignif = 0.002,
-  xlab = "1-SD increment in cardiometabolic trait\nper 1-SD increment in biomarker concentration",
-  colour = trait
-) +
-  ggforce::facet_col(
-    facets = ~group,
-    scales = "free_y",
-    space = "free"
-  )
+# # Simulate base data
+# set.seed(123)
+# n <- 100
+# df <- tibble(
+#   biomarker = rnorm(n),
+#   trait1 = biomarker * 0.3 + rnorm(n),
+#   trait2 = biomarker * -0.2 + rnorm(n),
+#   trait3 = biomarker * 0.5 + rnorm(n),
+#   group = sample(c("Metabolic", "Inflammatory"), size = n, replace = TRUE)
+# )
+# 
+# # Reshape data to long format
+# df_long <- df %>%
+#   pivot_longer(cols = starts_with("trait"), names_to = "trait", values_to = "outcome")
+# 
+# # Fit GLMs per trait x group
+# zzz <- df_long %>%
+#   group_by(trait, group) %>%
+#   nest() %>%
+#   mutate(
+#     model = map(data, ~ glm(outcome ~ biomarker, data = .x)),
+#     results = map(model, ~ broom::tidy(.x)[2, ])
+#   ) %>%
+#   unnest(results) %>%
+#   transmute(
+#     name = paste(trait, group, sep = "_"),
+#     trait = factor(trait),
+#     group = factor(group),
+#     beta = estimate,
+#     se = std.error,
+#     pvalue = p.value
+#   ) %>%
+#   # 👇 Factor `name` outside of grouping to avoid conflicting class errors
+#   ungroup() %>%
+#   mutate(name = factor(name, levels = unique(name), ordered = TRUE))
+# 
+# glimpse(zzz)
+# # name   ||> <chr>
+# # trait  ||> <fct> 
+# # group  ||> <fct> 
+# # beta   ||> <dbl> 
+# # se     ||> <dbl> 
+# # pvalue ||> <dbl>
+# 
+# 
+# # Draw a forestplot of cross-sectional, linear associations.
+# cal_forestplot(
+#   df = zzz,
+#   estimate = beta,
+#   pvalue = pvalue,
+#   psignif = 0.002,
+#   xlab = "1-SD increment in cardiometabolic trait\nper 1-SD increment in biomarker concentration",
+#   colour = trait
+# ) +
+#   ggforce::facet_col(
+#     facets = ~group,
+#     scales = "free_y",
+#     space = "free"
+#   )
