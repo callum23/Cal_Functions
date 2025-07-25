@@ -3655,15 +3655,15 @@ insert_blank_rows <- function(df, group_col) {
 
 
 # i am overwriting the ggfoerst function cheeky i know
-cal_forestplot <- forestplot
+# cal_forestplot <- forestplot
 
-# how to use
-library(ggforce)
-library(ggforestplot)
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(broom)
+# # how to use
+# library(ggforce)
+# library(ggforestplot)
+# library(dplyr)
+# library(tidyr)
+# library(purrr)
+# library(broom)
 
 # # Simulate base data
 # set.seed(123)
