@@ -3737,3 +3737,4 @@ cal_standardise_vars <- function(col_names) {
   col_names <- gsub(" ", "_", col_names, fixed = TRUE)  # replace spaces with underscores
   return(col_names)
 }
+# colnames(df) <- rename_cols(colnames(df))
