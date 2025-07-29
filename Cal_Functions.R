@@ -3724,3 +3724,16 @@ insert_blank_rows <- function(df, group_col) {
 #     scales = "free_y",
 #     space = "free"
 #   )
+
+
+
+
+############################
+# cal_standardise_vars ----
+############################
+
+cal_standardise_vars <- function(col_names) {
+  col_names <- tolower(col_names)                  # convert to lowercase
+  col_names <- gsub(" ", "_", col_names, fixed = TRUE)  # replace spaces with underscores
+  return(col_names)
+}
