@@ -3737,4 +3737,30 @@ cal_standardise_vars <- function(col_names) {
   col_names <- gsub(" ", "_", col_names, fixed = TRUE)  # replace spaces with underscores
   return(col_names)
 }
-# colnames(df) <- rename_cols(colnames(df))
+# colnames(df) <- cal_standardise_vars(colnames(df))
+
+
+
+############################
+# cal_year_month ----
+############################
+# this generates year month and year_month from a date variable
+cal_year_month <- function(data, date_col) {
+  data %>%
+    mutate(
+      year       = year({{ date_col }}),
+      month      = month({{ date_col }}),
+      year_month = format({{ date_col }}, "%Y-%m")
+    )
+}
+
+
+df <- data.frame(
+  id = 1:3,
+  my_date = as.Date(c("2025-09-18", "2024-03-05", "2023-12-25"))
+)
+
+df %>%
+  cal_year_month(my_date)
+
+
