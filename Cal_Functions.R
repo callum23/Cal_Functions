@@ -3755,12 +3755,12 @@ cal_year_month <- function(data, date_col) {
 }
 
 
-df <- data.frame(
-  id = 1:3,
-  my_date = as.Date(c("2025-09-18", "2024-03-05", "2023-12-25"))
-)
-
-df %>%
-  cal_year_month(my_date)
+# df <- data.frame(
+#   id = 1:3,
+#   my_date = as.Date(c("2025-09-18", "2024-03-05", "2023-12-25"))
+# )
+# 
+# df %>%
+#   cal_year_month(my_date)
 
 
