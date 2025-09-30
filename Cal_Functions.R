@@ -3787,7 +3787,7 @@ long.SyS.Date <- function() {
 # Long date based off Sys.Date() ----
 #....................................
 
-gen_hes_ethnicity_lookup <- function() {
+hes_ethnicity_lookup <- function() {
   data.frame(
     code = c("A","B","C","D","E","F","G","H","J","K","L",
              "M","N","P","R","S","Z","99"),
@@ -3811,7 +3811,7 @@ gen_hes_ethnicity_lookup <- function() {
       "Not stated",
       "Not known"
     ),
-    ethnos1 = c(
+    ethnos2 = c(
       "White",
       "White",
       "White",
@@ -3835,4 +3835,4 @@ gen_hes_ethnicity_lookup <- function() {
   )
 }
 
-# ethnos_lookup <- gen_hes_ethnicity_lookup()
+# ethnos_lookup <- hes_ethnicity_lookup()
