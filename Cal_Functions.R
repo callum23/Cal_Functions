@@ -3764,3 +3764,22 @@ cal_year_month <- function(data, date_col) {
 #   cal_year_month(my_date)
 
 
+#...............................
+# Long date based off Sys.Date()
+#...............................
+
+# This generates a long hand version of todays date based off Sys.Date()
+long.SyS.Date <- function() {
+  today <- Sys.Date()
+  day <- as.integer(format(today, "%d"))
+  suffix <- ifelse(day %in% c(11,12,13), "th",
+                   ifelse(day %% 10 == 1, "st",
+                          ifelse(day %% 10 == 2, "nd",
+                                 ifelse(day %% 10 == 3, "rd", "th"))))
+  paste0(day, suffix, " ", format(today, "%B %Y"))
+}
+
+# Example usage
+long.SyS.Date()
+
+
