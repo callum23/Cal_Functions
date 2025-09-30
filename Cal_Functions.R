@@ -3764,9 +3764,9 @@ cal_year_month <- function(data, date_col) {
 #   cal_year_month(my_date)
 
 
-#...............................
-# Long date based off Sys.Date()
-#...............................
+#....................................
+# Long date based off Sys.Date() ----
+#....................................
 
 # This generates a long hand version of todays date based off Sys.Date()
 long.SyS.Date <- function() {
@@ -3783,3 +3783,56 @@ long.SyS.Date <- function() {
 #long.SyS.Date()
 
 
+#....................................
+# Long date based off Sys.Date() ----
+#....................................
+
+gen_hes_ethnicity_lookup <- function() {
+  data.frame(
+    code = c("A","B","C","D","E","F","G","H","J","K","L",
+             "M","N","P","R","S","Z","99"),
+    ethnos1 = c(
+      "White - British",
+      "White - Irish",
+      "White - Any other White background",
+      "Mixed - White and Black Caribbean",
+      "Mixed - White and Black African",
+      "Mixed - White and Asian",
+      "Mixed - Any other mixed background",
+      "Asian or Asian British - Indian",
+      "Asian or Asian British - Pakistani",
+      "Asian or Asian British - Bangladeshi",
+      "Asian or Asian British - Any other Asian background",
+      "Black or Black British - Caribbean",
+      "Black or Black British - African",
+      "Black or Black British - Any other Black background",
+      "Other ethnic groups - Chinese",
+      "Other ethnic groups - Any other ethnic group",
+      "Not stated",
+      "Not known"
+    ),
+    ethnos1 = c(
+      "White",
+      "White",
+      "White",
+      "Mixed",
+      "Mixed",
+      "Mixed",
+      "Mixed",
+      "Asian",
+      "Asian",
+      "Asian",
+      "Asian",
+      "Black",
+      "Black",
+      "Black",
+      "Other",
+      "Other",
+      "Not stated",
+      "Not known"
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+# ethnos_lookup <- gen_hes_ethnicity_lookup()
