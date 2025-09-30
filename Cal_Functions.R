@@ -3779,7 +3779,7 @@ long.SyS.Date <- function() {
   paste0(day, suffix, " ", format(today, "%B %Y"))
 }
 
-# Example usage
-long.SyS.Date()
+# Example
+#long.SyS.Date()
 
 
