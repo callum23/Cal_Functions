@@ -41,6 +41,12 @@ cal_auto_dedupe <- function(df) {
 cal_is_duplicated <- function(x) {
   duplicated(x) | duplicated(x, fromLast = T)
 }
+
+# # Example
+# manual <- df %>%
+#   mutate(dupe = cal_is_duplicated(key)) %>%
+#   filter(dupe == TRUE)
+  
 #_______________________________________________________________________________
 #
 #
@@ -54,6 +60,13 @@ cal_is_duplicated <- function(x) {
 cal_dupe_to_remove <- function(x) {
   duplicated(x)
 }
+
+# # Example: 
+# df_clean <- df %>%
+#   arrange(desc(date)) %>%
+#   mutate(rm = cal_dupe_to_remove(key)) %>%
+#   filter(rm == FALSE)
+
 #_______________________________________________________________________________
 #
 #
@@ -3746,6 +3759,7 @@ cal_standardise_vars <- function(col_names) {
 ############################
 # this generates year month and year_month from a date variable
 cal_year_month <- function(data, date_col) {
+  library(lubridate)
   data %>%
     mutate(
       year       = year({{ date_col }}),
