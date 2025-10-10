@@ -3850,3 +3850,35 @@ hes_ethnicity_lookup <- function() {
 }
 
 # ethnos_lookup <- hes_ethnicity_lookup()
+
+
+#........................................
+# Make a long date with correct th st etc ----
+#........................................
+
+cal_long_date <- function(x) {
+  if (!inherits(x, "Date")) {
+    warning("Input must be a Date object DUMMY. Turn it into a Date and try again.")
+    x <- as.Date(x)
+    if (any(is.na(x))) stop("Coercion failed. Please provide a valid Date.")
+  }
+  
+  d <- as.integer(format(x, "%d"))  # get day as number
+  paste0(d,
+         ifelse(d %% 10 == 1 & d %% 100 != 11, "st",
+                ifelse(d %% 10 == 2 & d %% 100 != 12, "nd",
+                       ifelse(d %% 10 == 3 & d %% 100 != 13, "rd", "th"))),
+         " ", format(x, "%B %Y"))
+}
+
+# Example
+max_date <- as.Date("2025-10-10")
+cal_long_date(max_date)
+# [1] "10th October 2025"
+
+# Example with character input
+cal_long_date("2025-10-10")
+# Warning: Input x must be a Date object. Attempting to coerce using as.Date().
+# [1] "10th October 2025"
+
+
