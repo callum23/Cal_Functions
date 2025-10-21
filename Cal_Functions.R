@@ -3882,3 +3882,41 @@ cal_long_date("2025-10-10")
 # [1] "10th October 2025"
 
 
+
+#..............................
+# admission_method_grouper ----
+#..............................
+
+# Uses data from this link https://archive.datadictionary.nhs.uk/DD%20Release%20May%202024/data_elements/admission_method_code__hospital_provider_spell_.html
+
+admission_method_grouper <- function(admimeth_var) {
+  case_when(
+    admimeth_var == "11" ~ "Elective Admission: Waiting list",
+    admimeth_var == "12" ~ "Elective Admission: Booked",
+    admimeth_var == "13" ~ "Elective Admission: Planned",
+    admimeth_var == "21" ~ "Emergency Admission: Emergency Care Department or dental casualty department of the Health Care Provider",
+    admimeth_var == "22" ~ "Emergency Admission: General Practitioner after a request for immediate admission has been made direct to a Hospital Provider",
+    admimeth_var == "23" ~ "Emergency Admission: Bed bureau",
+    admimeth_var == "24" ~ "Emergency Admission: Consultant Clinic",
+    admimeth_var == "25" ~ "Emergency Admission: Admission via Mental Health Crisis Resolution Team",
+    admimeth_var == "2A" ~ "Emergency Admission: Emergency Care Department of another provider where the patient had not been admitted",
+    admimeth_var == "2B" ~ "Emergency Admission: Transfer of an admitted patient from another Hospital Provider in an emergency",
+    admimeth_var == "2C" ~ "Emergency Admission: Baby born at home as intended",
+    admimeth_var == "2D" ~ "Emergency Admission: Other emergency admission",
+    admimeth_var == "28" ~ "Emergency Admission: Other means",
+    admimeth_var == "31" ~ "Maternity Admission: Admitted ante partum",
+    admimeth_var == "32" ~ "Maternity Admission: Admitted post partum",
+    admimeth_var == "81" ~ "Other Admission: Transfer of any admitted patient from other Hospital Provider other than in an emergency",
+    admimeth_var == "82" ~ "Other Admission: The birth of a baby in this Health Care Provider",
+    admimeth_var == "83" ~ "Other Admission: Baby born outside the Health Care Provider except when born at home as intended",
+    admimeth_var == "99" ~ "Admission Method not known",
+    TRUE ~ "Other / unclassified"
+  )
+}
+
+# Example usage
+# lab_hes_ita <- lab_hes_ita %>%
+#   mutate(ADM_METHOD_LABEL = admission_method_grouper(ADMIMETH))
+
+
+
