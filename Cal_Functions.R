@@ -3662,7 +3662,8 @@ cal_forest_plot <- function(x,
   forestplot_tb$ci <- c(NA, x$table_body$ci)
   
   # Bold only categorical summary rows
-  summary_rows <- c(TRUE, x$table_body$row_type == "label" & x$table_body$var_type != "continuous")
+  summary_rows <- c(TRUE, x$table_body$row_type == "label"# & x$table_body$var_type != "continuous"
+                    )
   forestplot_tb <- forestplot_tb %>% mutate(..summary_row.. = summary_rows)
   
   # ----------------------------
