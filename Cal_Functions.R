@@ -3543,7 +3543,7 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 
 
 ####################################
-# cal_forest_plot
+# cal_forest_plot ----
 ####################################
 
 # Explanation: Right then this is really cool, if you put in the output of a tbl_regression() it will produce a publication worthy forest plot
