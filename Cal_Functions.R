@@ -3546,18 +3546,11 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 # cal_forest_plot
 ####################################
 
-# Explanation: Right then this is really cool, if you put in a 
-# first you will need to do x <- tbl_summary(df)
-# this is still missing the 95% CI call
-
-# updated forest plot
-
-
+# Explanation: Right then this is really cool, if you put in the output of a tbl_regression() it will produce a publication worthy forest plot
 
 # library(dplyr)
 # library(gtsummary)
 # 
-# # Example dataset
 # set.seed(123)
 # n <- 50000
 # 
@@ -3594,8 +3587,6 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 # example_data <- example_data %>%
 #   mutate(outcome = rbinom(n, size = 1, prob = prob_mort))
 # 
-# 
-# 
 # library(gtsummary)
 # 
 # fit <- glm(outcome ~ age_group + sex + treatment + bmi + smoker + ethnicity,
@@ -3604,13 +3595,12 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 # tbl_fit <- tbl_regression(fit, exponentiate = TRUE)
 
 
-
 cal_forest_plot <- function(x,
+                            family = "OR",         
                             col_names = c("estimate", "ci", "p.value"),
                             graph.pos = 2,
                             boxsize = 0.3,
-                            title_line_color = "darkblue",
-                            xlog = x$inputs$exponentiate) {
+                            title_line_color = "darkblue") {
   
   if (!requireNamespace("forestplot", quietly = TRUE)) {
     stop("Package 'forestplot' is required for cal_forest_plot()", call. = FALSE)
@@ -3623,6 +3613,18 @@ cal_forest_plot <- function(x,
   library(forestplot)
   
   # ----------------------------
+  # Determine log scale and x-axis label
+  # ----------------------------
+  family <- toupper(family)
+  xlog <- family %in% c("OR", "RR", "IRR")  # log scale for ratio measures
+  xlab <- switch(family,
+                 "OR"  = "Odds Ratio",
+                 "RR"  = "Risk Ratio",
+                 "IRR" = "Incidence Rate Ratio",
+                 "RISK"= "Risk",
+                 "Estimate")  # default
+  
+  # ----------------------------
   # Prepare main text table
   # ----------------------------
   txt_tb1 <- x %>%
@@ -3630,12 +3632,19 @@ cal_forest_plot <- function(x,
     gtsummary::modify_fmt_fun(contains("stat") ~ gtsummary::style_number) %>%
     gtsummary::as_tibble(col_labels = FALSE)
   
+  # ----------------------------
+  # Prepare header row and update "estimate" dynamically
+  # ----------------------------
   txt_tb2 <- x %>%
     gtsummary::modify_column_unhide() %>%
     gtsummary::as_tibble() %>%
     names()
   txt_tb2 <- data.frame(matrix(gsub("\\**", "", txt_tb2), nrow = 1), stringsAsFactors = FALSE)
   names(txt_tb2) <- names(txt_tb1)
+  
+  # Update header row for estimate column
+  estimate_col <- which(names(txt_tb2) == "estimate")
+  if(length(estimate_col) == 1) txt_tb2[1, estimate_col] <- xlab
   
   txt_tb <- bind_rows(txt_tb2, txt_tb1)
   
@@ -3652,17 +3661,17 @@ cal_forest_plot <- function(x,
   # Add CI column
   forestplot_tb$ci <- c(NA, x$table_body$ci)
   
-  # Bold main variables (summary rows)
-  summary_rows <- c(TRUE, x$table_body$row_type == "label")
+  # Bold only categorical summary rows
+  summary_rows <- c(TRUE, x$table_body$row_type == "label" & x$table_body$var_type != "continuous")
   forestplot_tb <- forestplot_tb %>% mutate(..summary_row.. = summary_rows)
   
   # ----------------------------
-  # Prepare labeltext as a list (needed for forestplot.default)
+  # Prepare labeltext as a list
   # ----------------------------
   label_txt <- forestplot_tb %>%
     select(all_of(c("label", col_names))) %>%
-    as.list() %>%  # convert columns to a list
-    lapply(as.character)  # make sure each column is character
+    as.list() %>%  
+    lapply(as.character)
   
   # ----------------------------
   # Draw forest plot
@@ -3679,16 +3688,16 @@ cal_forest_plot <- function(x,
     graphwidth = grid::unit(5, "cm"),
     hrzl_lines = list("2" = grid::gpar(lwd = 2, col = title_line_color)),
     xlog = xlog,
+    xlab = xlab,
     col = forestplot::fpColors(box = "darkblue", line = "darkblue", summary = "darkblue")
   )
 }
 
+# # Example of it being used
+# forest_obj <- cal_forest_plot(tbl_fit, family = "OR");forest_obj   # Odds Ratio (default)
+# forest_obj <- cal_forest_plot(tbl_fit, family = "RR");forest_obj   # Risk Ratio
+# forest_obj <- cal_forest_plot(tbl_fit, family = "Risk");forest_obj # Absolute Risk
 
-# # Assuming cal_forest_plot() is already defined
-# forest_obj <- cal_forest_plot(tbl_fit)
-# 
-# # This will generate and display the forest plot
-# forest_obj
 
 
 
