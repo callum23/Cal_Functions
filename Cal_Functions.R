@@ -3935,15 +3935,15 @@ cal_long_date <- function(x) {
          " ", format(x, "%B %Y"))
 }
 
-# Example
-max_date <- as.Date("2025-10-10")
-cal_long_date(max_date)
-# [1] "10th October 2025"
-
-# Example with character input
-cal_long_date("2025-10-10")
-# Warning: Input x must be a Date object. Attempting to coerce using as.Date().
-# [1] "10th October 2025"
+# # Example
+# max_date <- as.Date("2025-10-10")
+# cal_long_date(max_date)
+# # [1] "10th October 2025"
+# 
+# # Example with character input
+# cal_long_date("2025-10-10")
+# # Warning: Input x must be a Date object. Attempting to coerce using as.Date().
+# # [1] "10th October 2025"
 
 
 
