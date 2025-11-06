@@ -3612,9 +3612,7 @@ cal_forest_plot <- function(x,
   library(dplyr)
   library(forestplot)
   
-  # ----------------------------
   # Determine log scale and x-axis label
-  # ----------------------------
   family <- toupper(family)
   xlog <- family %in% c("OR", "RR", "IRR")  # log scale for ratio measures
   xlab <- switch(family,
@@ -3624,17 +3622,13 @@ cal_forest_plot <- function(x,
                  "RISK"= "Risk",
                  "Estimate")  # default
   
-  # ----------------------------
   # Prepare main text table
-  # ----------------------------
   txt_tb1 <- x %>%
     gtsummary::modify_column_unhide() %>%
     gtsummary::modify_fmt_fun(contains("stat") ~ gtsummary::style_number) %>%
     gtsummary::as_tibble(col_labels = FALSE)
   
-  # ----------------------------
   # Prepare header row and update "estimate" dynamically
-  # ----------------------------
   txt_tb2 <- x %>%
     gtsummary::modify_column_unhide() %>%
     gtsummary::as_tibble() %>%
@@ -3648,9 +3642,7 @@ cal_forest_plot <- function(x,
   
   txt_tb <- bind_rows(txt_tb2, txt_tb1)
   
-  # ----------------------------
   # Combine with numeric stats
-  # ----------------------------
   line_stats <- x$table_body %>%
     select(all_of(c("estimate", "conf.low", "conf.high"))) %>%
     rename_with(~paste0(., "_num")) %>%
@@ -3666,17 +3658,13 @@ cal_forest_plot <- function(x,
                     )
   forestplot_tb <- forestplot_tb %>% mutate(..summary_row.. = summary_rows)
   
-  # ----------------------------
   # Prepare labeltext as a list
-  # ----------------------------
   label_txt <- forestplot_tb %>%
     select(all_of(c("label", col_names))) %>%
     as.list() %>%  
     lapply(as.character)
   
-  # ----------------------------
   # Draw forest plot
-  # ----------------------------
   forestplot::forestplot(
     labeltext = label_txt,
     mean = forestplot_tb$estimate_num,
@@ -3703,7 +3691,7 @@ cal_forest_plot <- function(x,
 
 
 ###################
-# insert_blank_rows 
+# insert_blank_rows ----
 ###################
 
 insert_blank_rows <- function(df, group_col) {
@@ -3821,6 +3809,7 @@ cal_standardise_vars <- function(col_names) {
 ############################
 # cal_year_month ----
 ############################
+
 # this generates year month and year_month from a date variable
 cal_year_month <- function(data, date_col) {
   library(lubridate)
@@ -3984,3 +3973,40 @@ admission_method_grouper <- function(admimeth_var) {
 
 
 
+
+
+# Mid year population estimates ----
+cal_eng_year <- function() {
+  url <- "https://raw.githubusercontent.com/calpearson/Cal_Functions/main/data/eng_year.RData"
+  env <- new.env()
+  load(url(url), envir = env)
+  env$eng_year
+}
+
+cal_eng_age_year <- function() {
+  url <- "https://raw.githubusercontent.com/calpearson/Cal_Functions/main/data/eng_age_year.RData"
+  env <- new.env()
+  load(url(url), envir = env)
+  env$eng_age_year
+}
+
+cal_eng_sex_year <- function() {
+  url <- "https://raw.githubusercontent.com/calpearson/Cal_Functions/main/data/eng_sex_year.RData"
+  env <- new.env()
+  load(url(url), envir = env)
+  env$eng_sex_year
+}
+
+cal_eng_age_sex_year <- function() {
+  url <- "https://raw.githubusercontent.com/calpearson/Cal_Functions/main/data/eng_age_sex_year.RData"
+  env <- new.env()
+  load(url(url), envir = env)
+  env$eng_age_sex_year
+}
+
+cal_eng_age_sex_year_geo <- function() {
+  url <- "https://raw.githubusercontent.com/calpearson/Cal_Functions/main/data/eng_age_sex_year_geo.RData"
+  env <- new.env()
+  load(url(url), envir = env)
+  env$eng_age_sex_year_geo
+}
