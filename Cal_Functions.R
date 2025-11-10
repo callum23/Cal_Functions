@@ -4010,3 +4010,93 @@ cal_eng_age_sex_year_geo <- function() {
   load(url(url), envir = env)
   env$eng_age_sex_year_geo
 }
+
+
+# Causal Impacts ----
+cal_monthly_causal_impact <- function(df, date_col, outcome_col = NULL, intervention_date) {
+  library(tidyverse)
+  library(lubridate)
+  library(CausalImpact)
+  library(zoo)
+  library(janitor)  # for tabyl()
+  
+  # -------------------------------
+  # 1) Aggregate to monthly counts
+  # -------------------------------
+  ts_data <- df %>%
+    tabyl({{date_col}}) %>%
+    select({{date_col}}, n) %>%
+    rename(
+      month = {{date_col}},
+      count = n
+    ) %>%
+    mutate(month = as.Date(month)) %>%
+    arrange(month) %>%
+    { zoo(.$count, order.by = .$month) }
+  
+  # -------------------------------
+  # 2) Define pre/post periods
+  # -------------------------------
+  pre.period  <- c(min(index(ts_data)), intervention_date - 1)
+  post.period <- c(intervention_date, max(index(ts_data)))
+  
+  # -------------------------------
+  # 3) Run CausalImpact
+  # -------------------------------
+  impact <- CausalImpact(ts_data, pre.period, post.period)
+  
+  # -------------------------------
+  # 4) Return results
+  # -------------------------------
+  list(
+    impact_object = impact,
+    pointwise_results = as_tibble(impact$series, rownames = "date") %>%
+      mutate(date = as.Date(date))
+  )
+}
+
+# library(tidyverse)
+# library(lubridate)
+# 
+# set.seed(123)  # reproducibility
+# 
+# # Generate monthly dates and counts
+# months <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), by = "month")
+# counts <- rpois(length(months), lambda = 20)  # avg 20 cases per month
+# 
+# # Expand to one row per case
+# myco_df <- tibble(month_year_date = rep(months, times = counts))
+# 
+# # Run your causal impact function
+# results <- cal_monthly_causal_impact(
+#   myco_df, 
+#   date_col = month_year_date, 
+#   intervention_date = as.Date("2020-01-01")
+# )
+# # Inspect results
+# results$impact_object
+# head(results$pointwise_results)
+# 
+# 
+# # Run the function
+# results <- cal_monthly_causal_impact(myco_df, 
+#                                      date_col = month_year_date,
+#                                      intervention_date = as.Date("2020-01-01"))
+# 
+# # Plot it
+# results
+# 
+# # Access CausalImpact object
+# impact <- results$impact_object
+# impact
+# 
+# # Access tidy pointwise results
+# pointwise_tbl <- results$pointwise_results
+# head(pointwise_tbl)
+# 
+# # Plot results
+# plot(impact)
+# 
+# # Plain english text
+# summary(impact, "report")
+
