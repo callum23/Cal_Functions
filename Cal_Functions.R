@@ -3989,7 +3989,7 @@ admission_method_grouper_broad <- function(admimeth_var) {
     admimeth_var == "12" ~ "Elective Admission",
     admimeth_var == "13" ~ "Elective Admission",
     admimeth_var == "21" ~ "Emergency Admission",
-    admimeth_var == "22" ~ "Emergency Admission: General Practitioner after a request for immediate admission has been made direct to a Hospital Provider",
+    admimeth_var == "22" ~ "Emergency Admission by General Practitioner",
     admimeth_var == "23" ~ "Emergency Admission",
     admimeth_var == "24" ~ "Emergency Admission",
     admimeth_var == "25" ~ "Emergency Admission",
