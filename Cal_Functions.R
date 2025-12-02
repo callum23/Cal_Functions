@@ -3975,6 +3975,54 @@ admission_method_grouper <- function(admimeth_var) {
 
 
 
+
+
+#....................................
+# admission_method_grouper_broad ----
+#....................................
+
+# Uses data from this link https://archive.datadictionary.nhs.uk/DD%20Release%20May%202024/data_elements/admission_method_code__hospital_provider_spell_.html
+
+admission_method_grouper_broad <- function(admimeth_var) {
+  case_when(
+    admimeth_var == "11" ~ "Elective Admission",
+    admimeth_var == "12" ~ "Elective Admission",
+    admimeth_var == "13" ~ "Elective Admission",
+    admimeth_var == "21" ~ "Emergency Admission",
+    admimeth_var == "22" ~ "Emergency Admission: General Practitioner after a request for immediate admission has been made direct to a Hospital Provider",
+    admimeth_var == "23" ~ "Emergency Admission",
+    admimeth_var == "24" ~ "Emergency Admission",
+    admimeth_var == "25" ~ "Emergency Admission",
+    admimeth_var == "2A" ~ "Emergency Admission",
+    admimeth_var == "2B" ~ "Emergency Admission",
+    admimeth_var == "2C" ~ "Emergency Admission",
+    admimeth_var == "2D" ~ "Emergency Admission",
+    admimeth_var == "28" ~ "Emergency Admission",
+    admimeth_var == "31" ~ "Maternity Admission",
+    admimeth_var == "32" ~ "Maternity Admission",
+    admimeth_var == "81" ~ "Other Admission",
+    admimeth_var == "82" ~ "Other Admission",
+    admimeth_var == "83" ~ "Other Admission",
+    admimeth_var == "99" ~ "Admission Method not known",
+    TRUE ~ "Other / unclassified"
+  )
+}
+
+# Example usage
+# lab_hes_ita <- lab_hes_ita %>%
+#   mutate(ADM_METHOD_LABEL = admission_method_grouper_broad(ADMIMETH))
+
+
+
+
+
+
+
+
+
+
+
+
 # Mid year population estimates ----
 cal_eng_year <- function() {
   url <- "https://raw.githubusercontent.com/calpearson/Cal_Functions/main/data/eng_year.RData"
