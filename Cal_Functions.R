@@ -4148,3 +4148,125 @@ cal_monthly_causal_impact <- function(df, date_col, outcome_col = NULL, interven
 # # Plain english text
 # summary(impact, "report")
 
+
+
+#......................................
+# How to plot line in UKHSA themes ----
+#......................................
+
+
+# function
+plot_ukhsa_line <- function(df, date_var, n_var,
+                            title = NULL,
+                            subtitle = NULL,
+                            xlab = NULL,
+                            ylab = NULL) {
+  
+  library(ggplot2)
+  library(dplyr)
+  library(rlang)
+  library(ukhsacharts)
+  library(tibble)
+  
+  date_var <- enquo(date_var)
+  n_var    <- enquo(n_var)
+  
+  df %>%
+    ggplot(aes(x = !!date_var, y = !!n_var)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 2) +
+    scale_x_date(date_labels = "%b %Y") +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = xlab,
+      y = ylab
+    ) +
+    theme_ukhsa()
+}
+
+
+# # get some pretend data.
+# ukhsa_test_df <- tibble(
+#   report_date = seq.Date(
+#     from = as.Date("2024-01-01"),
+#     to   = as.Date("2024-06-01"),
+#     by   = "month"
+#   ),
+#   n_cases = c(120, 185, 240, 310, 275, 330)
+# )
+
+
+plot_ukhsa_line(
+  df = ukhsa_test_df,
+  date_var = report_date,
+  n_var = n_cases,
+  title = "Monthly reported cases",
+  ylab = "Case count"
+)
+
+
+
+
+
+
+#.....................................
+# How to plot bar in UKHSA themes ----
+#.....................................
+
+# function
+plot_ukhsa_bar <- function(df, date_var, n_var,
+                           title = NULL,
+                           subtitle = NULL,
+                           xlab = NULL,
+                           ylab = NULL,
+                           bar_width = 25) {
+  
+  
+  library(ggplot2)
+  library(dplyr)
+  library(rlang)
+  library(ukhsacharts)
+  library(tibble)
+  
+  date_var <- enquo(date_var)
+  n_var    <- enquo(n_var)
+  
+  # UKHSA / Gov Analysis Function primary teal
+  ukhsa_teal <- "#28A197"
+  
+  df %>%
+    ggplot(aes(x = !!date_var, y = !!n_var)) +
+    geom_col(
+      width = bar_width,
+      fill = ukhsa_teal
+    ) +
+    scale_x_date(date_labels = "%b %Y") +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = xlab,
+      y = ylab
+    ) +
+    theme_ukhsa()
+}
+
+# # get some pretend data.
+# ukhsa_test_df <- tibble(
+#   report_date = seq.Date(
+#     from = as.Date("2024-01-01"),
+#     to   = as.Date("2024-06-01"),
+#     by   = "month"
+#   ),
+#   n_cases = c(120, 185, 240, 310, 275, 330)
+# )
+
+
+# use your function
+plot_ukhsa_bar(
+  df = ukhsa_test_df,
+  date_var = report_date,
+  n_var = n_cases,
+  title = "Monthly reported cases",
+  ylab = "Case count"
+)
