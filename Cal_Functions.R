@@ -4197,13 +4197,13 @@ plot_ukhsa_line <- function(df, date_var, n_var,
 # )
 
 
-plot_ukhsa_line(
-  df = ukhsa_test_df,
-  date_var = report_date,
-  n_var = n_cases,
-  title = "Monthly reported cases",
-  ylab = "Case count"
-)
+# plot_ukhsa_line(
+#   df = ukhsa_test_df,
+#   date_var = report_date,
+#   n_var = n_cases,
+#   title = "Monthly reported cases",
+#   ylab = "Case count"
+# )
 
 
 
@@ -4262,11 +4262,11 @@ plot_ukhsa_bar <- function(df, date_var, n_var,
 # )
 
 
-# use your function
-plot_ukhsa_bar(
-  df = ukhsa_test_df,
-  date_var = report_date,
-  n_var = n_cases,
-  title = "Monthly reported cases",
-  ylab = "Case count"
-)
+# # use your function
+# plot_ukhsa_bar(
+#   df = ukhsa_test_df,
+#   date_var = report_date,
+#   n_var = n_cases,
+#   title = "Monthly reported cases",
+#   ylab = "Case count"
+# )
