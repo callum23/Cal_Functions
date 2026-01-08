@@ -4270,3 +4270,27 @@ plot_ukhsa_bar <- function(df, date_var, n_var,
 #   title = "Monthly reported cases",
 #   ylab = "Case count"
 # )
+
+
+
+#........................................................................................
+# tbl regression wrapper that bolds all of the significant and labels it >0.05 not >0.001
+#........................................................................................
+
+# example of it being used 
+# cit_mort <- glm(`30-day all-cause mortality` ~ `Coinfection status with COVID-19` * `ICU onset status` + `Patient sex` + `Age group` + Ethnicity + `Socioeconomic deprivation score` + `Carlson comorbidity score`, 
+#                 family = "binomial", 
+#                 data = mort %>% filter(organism_genus_name == "Citrobacter spp")) %>% 
+#   cal_tbl_regression()
+
+cal_tbl_regression <- function(model) {
+  tbl_regression(
+    model,
+    exponentiate = TRUE,
+    pvalue_fun = function(x) {
+      # Show "<0.05" for significant p-values, else round to 3 decimals
+      ifelse(x < 0.05, "<0.05", sprintf("%.3f", x))
+    }
+  ) %>%
+    bold_p(t = 0.05)
+}
