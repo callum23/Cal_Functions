@@ -3556,15 +3556,15 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 # 
 # example_data <- tibble(
 #   age = rnorm(n, mean = 50, sd = 12),
-#   sex = sample(c("Male", "Female"), n, replace = TRUE, prob = c(0.48, 0.52)),
-#   treatment = sample(c("A", "B", "C"), n, replace = TRUE, prob = c(0.4, 0.4, 0.2)),
-#   bmi = rnorm(n, mean = 27, sd = 5),
-#   smoker = sample(c("Yes", "No"), n, replace = TRUE, prob = c(0.25, 0.75)),
-#   ethnicity = sample(c("White", "Black", "Asian", "Mixed", "Other"), n, replace = TRUE,
+#   Sex = sample(c("Male", "Female"), n, replace = TRUE, prob = c(0.48, 0.52)),
+#   Treatment = sample(c("A", "B", "C"), n, replace = TRUE, prob = c(0.4, 0.4, 0.2)),
+#   BMI = rnorm(n, mean = 27, sd = 5),
+#   Smoker = sample(c("Yes", "No"), n, replace = TRUE, prob = c(0.25, 0.75)),
+#   Ethnicity = sample(c("White", "Black", "Asian", "Mixed", "Other"), n, replace = TRUE,
 #                      prob = c(0.6, 0.15, 0.15, 0.05, 0.05))
 # ) %>%
 #   mutate(
-#     age_group = case_when(
+#     `Age group` = case_when(
 #       age < 40 ~ "<40",
 #       age >= 40 & age < 50 ~ "40-49",
 #       age >= 50 & age < 60 ~ "50-59",
@@ -3574,11 +3574,11 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 #   )
 # 
 # # Simulate outcome (mortality) with age_group, bmi, smoker as risk factors
-# log_odds <- -5 + 
-#   0.5 * (example_data$age_group %in% c("50-59","60-69","70+")) +
-#   0.05 * example_data$bmi +
-#   0.5 * (example_data$smoker == "Yes") +
-#   0.3 * (example_data$ethnicity == "Black")
+# log_odds <- -5 +
+#   0.5 * (example_data$`Age group` %in% c("50-59","60-69","70+")) +
+#   0.05 * example_data$BMI +
+#   0.5 * (example_data$Smoker == "Yes") +
+#   0.3 * (example_data$Ethnicity == "Black")
 # 
 # # Convert to probability
 # prob_mort <- 1 / (1 + exp(-log_odds))
@@ -3589,28 +3589,34 @@ cal_condense <- function(data, grouped_var, var_to_collapse, new_name) {
 # 
 # library(gtsummary)
 # 
-# fit <- glm(outcome ~ age_group + sex + treatment + bmi + smoker + ethnicity,
+# fit <- glm(outcome ~ `Age group` + Sex + Treatment + BMI + Smoker + Ethnicity,
 #            data = example_data, family = binomial)
-# 
-# tbl_fit <- tbl_regression(fit, exponentiate = TRUE)
 
-
-cal_forest_plot <- function(x,
+cal_forest_plot <- function(fit_or_tbl,
                             family = "OR",         
                             col_names = c("estimate", "ci", "p.value"),
                             graph.pos = 2,
                             boxsize = 0.3,
-                            title_line_color = "darkblue") {
+                            title_line_color = "darkblue",
+                            exponentiate = TRUE,
+                            indent_spaces = 5) {  # new argument for indentation
   
   if (!requireNamespace("forestplot", quietly = TRUE)) {
     stop("Package 'forestplot' is required for cal_forest_plot()", call. = FALSE)
   }
-  if (!inherits(x, c("tbl_regression", "tbl_uvregression"))) {
-    stop("`x=` must be class 'tbl_regression' or 'tbl_uvregression'", call. = FALSE)
-  }
   
   library(dplyr)
   library(forestplot)
+  library(gtsummary)
+  
+  # If input is a GLM/fit, convert to tbl_regression internally
+  if (inherits(fit_or_tbl, "glm") || inherits(fit_or_tbl, "lm")) {
+    x <- gtsummary::tbl_regression(fit_or_tbl, exponentiate = exponentiate)
+  } else if (inherits(fit_or_tbl, c("tbl_regression", "tbl_uvregression"))) {
+    x <- fit_or_tbl
+  } else {
+    stop("Input must be a glm/lm object or tbl_regression/tbl_uvregression object", call. = FALSE)
+  }
   
   # Determine log scale and x-axis label
   family <- toupper(family)
@@ -3654,9 +3660,12 @@ cal_forest_plot <- function(x,
   forestplot_tb$ci <- c(NA, x$table_body$ci)
   
   # Bold only categorical summary rows
-  summary_rows <- c(TRUE, x$table_body$row_type == "label"# & x$table_body$var_type != "continuous"
-                    )
+  summary_rows <- c(TRUE, x$table_body$row_type == "label")
   forestplot_tb <- forestplot_tb %>% mutate(..summary_row.. = summary_rows)
+  
+  # --- NEW: Indent variable names that are not summary rows ---
+  forestplot_tb <- forestplot_tb %>%
+    mutate(label = ifelse(..summary_row.., label, paste0(strrep(" ", indent_spaces), label)))
   
   # Prepare labeltext as a list
   label_txt <- forestplot_tb %>%
@@ -3683,9 +3692,9 @@ cal_forest_plot <- function(x,
 }
 
 # # Example of it being used
-# forest_obj <- cal_forest_plot(tbl_fit, family = "OR");forest_obj   # Odds Ratio (default)
-# forest_obj <- cal_forest_plot(tbl_fit, family = "RR");forest_obj   # Risk Ratio
-# forest_obj <- cal_forest_plot(tbl_fit, family = "Risk");forest_obj # Absolute Risk
+# forest_obj <- cal_forest_plot(fit, family = "OR");forest_obj   # Odds Ratio (default)
+# forest_obj <- cal_forest_plot(fit, family = "RR");forest_obj   # Risk Ratio
+# forest_obj <- cal_forest_plot(fit, family = "Risk");forest_obj # Absolute Risk
 
 
 
