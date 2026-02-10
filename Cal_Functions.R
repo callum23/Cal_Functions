@@ -4303,3 +4303,21 @@ cal_tbl_regression <- function(model) {
   ) %>%
     bold_p(t = 0.05)
 }
+
+
+#........................................................................................
+# cal_filter_for_dupes
+#........................................................................................
+
+# this is quicker than cal_is_duplicated with the filter attached
+
+cal_filter_for_dupes <- function(data, var) {
+  data %>%
+    filter(cal_is_duplicated({{ var }}))
+}
+
+# # example use
+# dupe <- df %>%
+#   cal_filter_for_dupes(id)
+
+
