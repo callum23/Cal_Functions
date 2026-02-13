@@ -3402,26 +3402,57 @@ CFR_ttest_summary <- function(data, genus_name) {
 
 
 # interpret model ----
-cal_interpret_model <- function(model) {
-  coef_summary <- summary(model)$coefficients
-  conf_int <- tibble(
-    characteristic = rownames(coef_summary),
-    exp = exp(coef_summary[, "Estimate"]),
-    lower = exp(coef_summary[, "Estimate"] - 1.96 * coef_summary[, "Std. Error"]),
-    upper = exp(coef_summary[, "Estimate"] + 1.96 * coef_summary[, "Std. Error"])
-  ) %>%
-    mutate(CI = sprintf("%.2f-%.2f", lower, upper)) %>%
-    select(characteristic, exp, CI)
-  
-  return(conf_int)
-}
+# cal_interpret_model <- function(model) {
+#   coef_summary <- summary(model)$coefficients
+#   conf_int <- tibble(
+#     characteristic = rownames(coef_summary),
+#     exp = exp(coef_summary[, "Estimate"]),
+#     lower = exp(coef_summary[, "Estimate"] - 1.96 * coef_summary[, "Std. Error"]),
+#     upper = exp(coef_summary[, "Estimate"] + 1.96 * coef_summary[, "Std. Error"])
+#   ) %>%
+#     mutate(CI = sprintf("%.2f-%.2f", lower, upper)) %>%
+#     select(characteristic, exp, CI)
+#   
+#   return(conf_int)
+# }
+# 
+# 
+# cal_interpret_model <- function(model) {
+#   coef_summary <- summary(model)$coefficients
+#   
+#   # Identify the correct column name for p-values
+#   p_col <- grep("Pr\\(>.*\\)", colnames(coef_summary), value = TRUE)
+#   
+#   if (length(p_col) == 0) {
+#     stop("Could not find the p-value column in model summary.")
+#   }
+#   
+#   conf_int <- tibble(
+#     characteristic = rownames(coef_summary),
+#     exp = exp(coef_summary[, "Estimate"]),
+#     lower = exp(coef_summary[, "Estimate"] - 1.96 * coef_summary[, "Std. Error"]),
+#     upper = exp(coef_summary[, "Estimate"] + 1.96 * coef_summary[, "Std. Error"]),
+#     p_value = coef_summary[, p_col] # Extract p-values dynamically
+#   ) %>%
+#     mutate(
+#       CI = sprintf("%.2f-%.2f", lower, upper),
+#       p_value_label = case_when(
+#         p_value < 0.001 ~ "<0.001",
+#         p_value < 0.05 ~ "<0.05",
+#         TRUE ~ sprintf("%.3f", p_value) # Show exact value for others
+#       )
+#     ) %>%
+#     select(characteristic, exp, CI, p_value_label)
+#   
+#   return(conf_int)
+# }
 
 
 cal_interpret_model <- function(model) {
-  coef_summary <- summary(model)$coefficients
   
-  # Identify the correct column name for p-values
-  p_col <- grep("Pr\\(>.*\\)", colnames(coef_summary), value = TRUE)
+  coef_summary <- summary(model)$coefficients$cond
+  
+  p_col <- which(colnames(coef_summary) == "Pr(>|z|)")
   
   if (length(p_col) == 0) {
     stop("Could not find the p-value column in model summary.")
@@ -3432,20 +3463,21 @@ cal_interpret_model <- function(model) {
     exp = exp(coef_summary[, "Estimate"]),
     lower = exp(coef_summary[, "Estimate"] - 1.96 * coef_summary[, "Std. Error"]),
     upper = exp(coef_summary[, "Estimate"] + 1.96 * coef_summary[, "Std. Error"]),
-    p_value = coef_summary[, p_col] # Extract p-values dynamically
+    p_value = coef_summary[, p_col]
   ) %>%
     mutate(
       CI = sprintf("%.2f-%.2f", lower, upper),
       p_value_label = case_when(
         p_value < 0.001 ~ "<0.001",
         p_value < 0.05 ~ "<0.05",
-        TRUE ~ sprintf("%.3f", p_value) # Show exact value for others
+        TRUE ~ sprintf("%.3f", p_value)
       )
     ) %>%
     select(characteristic, exp, CI, p_value_label)
   
   return(conf_int)
 }
+
 # Example usage:
 # interpret_model(model)
 
