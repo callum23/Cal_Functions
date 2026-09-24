@@ -4383,3 +4383,29 @@ cal_filter_for_dupes <- function(data, var) {
 #   cal_filter_for_dupes(id)
 
 
+
+#...............................................................................
+# cal_full_dates
+#...............................................................................
+
+
+cal_full_dates <- function(x) {
+  
+  day_num <- as.numeric(format(x, "%d"))
+  
+  suffix <- ifelse(
+    day_num %% 100 %in% 11:13,
+    "th",
+    c("th", "st", "nd", "rd", rep("th", 6))[day_num %% 10 + 1]
+  )
+  
+  paste0(
+    day_num, suffix, " ",
+    format(x, "%B %Y")
+  )
+}
+
+
+# example usage
+#date <- as.Date("2020-01-01")
+#cal_full_dates(date)
