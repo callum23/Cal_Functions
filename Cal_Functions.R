@@ -4409,3 +4409,167 @@ cal_full_dates <- function(x) {
 # example usage
 #date <- as.Date("2020-01-01")
 #cal_full_dates(date)
+
+
+#...............................................................................
+#' Epidemic curve (epicurve)
+#...............................................................................
+#'
+#' Stacked bar chart of cases over time, e.g. confirmed vs non-confirmed,
+#' so the total height shows the total potential burden.
+#'
+#' @param data     Data frame (one row per case, or pre-aggregated counts).
+#' @param x        Column name (string) holding the date / time period of onset.
+#' @param y        Column name (string) of pre-aggregated counts. If NULL
+#'                 (default), each row is counted as one case.
+#' @param group    Column name (string) to stack by, e.g. "case_status".
+#'                 Optional. The first level is drawn at the bottom.
+#' @param colour   Character vector of colours, one per group level
+#'                 (named or in level order). Optional.
+#' @param title,subtitle,caption  Optional plot text.
+#' @param bin_width  Bar width in x units (days for Date, e.g. 7 for weekly).
+#' @param date_breaks,date_labels  Passed to scale_x_date() when x is a Date.
+#' @param legend_title  Legend heading (defaults to the group column name).
+#'
+#' @return A ggplot object.
+#'
+#' @examples
+#' set.seed(1)
+#' df <- data.frame(
+#'   onset  = as.Date("2026-09-01") + sample(0:28, 200, replace = TRUE,
+#'                                          prob = dnorm(0:28, 14, 6)),
+#'   status = sample(c("Confirmed", "Non-confirmed"), 200, replace = TRUE,
+#'                   prob = c(0.6, 0.4))
+#' )
+#' epicurve(df, x = "onset", group = "status",
+#'          title = "Outbreak epicurve", subtitle = "By date of symptom onset")
+
+epicurve <- function(data,
+                     x = "",
+                     y = NULL,
+                     group = NULL,
+                     colour = NULL,
+                     title = NULL,
+                     subtitle = NULL,
+                     caption = NULL,
+                     bin_width = 1,
+                     date_breaks = ggplot2::waiver(),
+                     date_labels = "%d %b",
+                     legend_title = NULL) {
+  
+  stopifnot(requireNamespace("ggplot2", quietly = TRUE),
+            requireNamespace("dplyr", quietly = TRUE))
+  
+  # Treat empty strings as "not supplied"
+  if (identical(y, ""))     y <- NULL
+  if (identical(group, "")) group <- NULL
+  if (!x %in% names(data)) stop("`x` must be a column name in `data`.")
+  
+  # ---- Aggregate -----------------------------------------------------------
+  grp_cols <- c(x, group)
+  plot_df <- data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grp_cols))) |>
+    dplyr::summarise(
+      n = if (is.null(y)) dplyr::n() else sum(.data[[y]], na.rm = TRUE),
+      .groups = "drop"
+    )
+  
+  if (!is.null(group) && !is.factor(plot_df[[group]])) {
+    plot_df[[group]] <- factor(plot_df[[group]])
+  }
+  
+  # ---- Colours -------------------------------------------------------------
+  default_cols <- c("#1B4F72", "#85A9C9", "#C9D6E3", "#7F8C8D")
+  n_levels <- if (is.null(group)) 1 else nlevels(plot_df[[group]])
+  if (is.null(colour)) colour <- default_cols[seq_len(n_levels)]
+  
+  # ---- Plot ----------------------------------------------------------------
+  is_date <- inherits(plot_df[[x]], "Date")
+  
+  p <- ggplot2::ggplot(
+    plot_df,
+    ggplot2::aes(x = .data[[x]], y = n,
+                 fill = if (is.null(group)) NULL else .data[[group]])
+  ) +
+    ggplot2::geom_col(
+      width = bin_width,
+      colour = "white", linewidth = 0.3,
+      position = ggplot2::position_stack(reverse = TRUE)
+    ) +
+    ggplot2::scale_y_continuous(
+      expand = ggplot2::expansion(mult = c(0, 0.05)),
+      breaks = function(lims) {
+        b <- pretty(lims)
+        unique(b[b == floor(b)])
+      }
+    ) +
+    ggplot2::labs(
+      title = title, subtitle = subtitle, caption = caption,
+      x = NULL, y = "Number of cases",
+      fill = if (is.null(legend_title)) group else legend_title
+    )
+  
+  if (is_date) {
+    p <- p + ggplot2::scale_x_date(
+      date_breaks = date_breaks, date_labels = date_labels,
+      expand = ggplot2::expansion(mult = 0.02)
+    )
+  }
+  
+  p <- if (is.null(group)) {
+    p + ggplot2::scale_fill_manual(values = colour[1], guide = "none")
+  } else {
+    p + ggplot2::scale_fill_manual(values = colour)
+  }
+  
+  # ---- Theme ---------------------------------------------------------------
+  p +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(
+      text               = ggplot2::element_text(colour = "#2C3E50"),
+      plot.title         = ggplot2::element_text(face = "bold", size = 16,
+                                                 margin = ggplot2::margin(b = 4)),
+      plot.subtitle      = ggplot2::element_text(colour = "#5D6D7E",
+                                                 margin = ggplot2::margin(b = 12)),
+      plot.caption       = ggplot2::element_text(colour = "#7F8C8D", size = 9,
+                                                 hjust = 0),
+      plot.title.position   = "plot",
+      plot.caption.position = "plot",
+      panel.grid.major.x = ggplot2::element_blank(),
+      panel.grid.minor   = ggplot2::element_blank(),
+      panel.grid.major.y = ggplot2::element_line(colour = "#E5E8EB",
+                                                 linewidth = 0.4),
+      axis.line.x        = ggplot2::element_line(colour = "#2C3E50",
+                                                 linewidth = 0.5),
+      axis.ticks.x       = ggplot2::element_line(colour = "#2C3E50"),
+      axis.text          = ggplot2::element_text(colour = "#5D6D7E"),
+      axis.title.y       = ggplot2::element_text(margin = ggplot2::margin(r = 8)),
+      legend.position    = "top",
+      legend.justification = "left",
+      legend.title       = ggplot2::element_text(face = "bold", size = 10),
+      legend.key.size    = ggplot2::unit(0.9, "lines"),
+      plot.margin        = ggplot2::margin(15, 15, 10, 15)
+    )
+}
+
+# set.seed(123)
+# 
+# df_cases <- data.frame(
+#   onset = as.Date("2026-09-01") +
+#     sample(0:30, 250, replace = TRUE),
+#   status = sample(
+#     c("Confirmed", "Probable", "Possible"),
+#     250,
+#     replace = TRUE,
+#     prob = c(0.6, 0.3, 0.1)
+#   )
+# )
+# 
+# epicurve(
+#   data = df_cases,
+#   x = "onset",
+#   group = "status",
+#   title = "Outbreak Epidemic Curve",
+#   subtitle = "Cases by onset date",
+#   bin_width = 1
+# )
