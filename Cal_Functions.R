@@ -4414,6 +4414,7 @@ cal_full_dates <- function(x) {
 #...............................................................................
 #' Epidemic curve (epicurve)
 #...............................................................................
+#' Epidemic curve (epicurve)
 #'
 #' Stacked bar chart of cases over time, e.g. confirmed vs non-confirmed,
 #' so the total height shows the total potential burden.
@@ -4424,8 +4425,13 @@ cal_full_dates <- function(x) {
 #'                 (default), each row is counted as one case.
 #' @param group    Column name (string) to stack by, e.g. "case_status".
 #'                 Optional. The first level is drawn at the bottom.
+#' @param main_group  The level of `group` to place at the bottom of the
+#'                 stack in the darkest colour (e.g. "Confirmed").
+#' @param group_order Optional character vector giving the full stacking order,
+#'                 bottom to top (e.g. c("Confirmed", "Probable", "Possible")).
+#'                 `main_group` is moved to the bottom if not already first.
 #' @param colour   Character vector of colours, one per group level
-#'                 (named or in level order). Optional.
+#'                 (named or in stacking order, darkest first). Optional.
 #' @param title,subtitle,caption  Optional plot text.
 #' @param bin_width  Bar width in x units (days for Date, e.g. 7 for weekly).
 #' @param date_breaks,date_labels  Passed to scale_x_date() when x is a Date.
@@ -4434,20 +4440,23 @@ cal_full_dates <- function(x) {
 #' @return A ggplot object.
 #'
 #' @examples
-#' set.seed(1)
-#' df <- data.frame(
-#'   onset  = as.Date("2026-09-01") + sample(0:28, 200, replace = TRUE,
-#'                                          prob = dnorm(0:28, 14, 6)),
-#'   status = sample(c("Confirmed", "Non-confirmed"), 200, replace = TRUE,
-#'                   prob = c(0.6, 0.4))
+#' df_cases <- data.frame(
+#'   onset  = as.Date("2026-09-01") + sample(0:30, 250, replace = TRUE),
+#'   status = sample(c("Confirmed", "Probable", "Possible"), 250,
+#'                   replace = TRUE, prob = c(0.6, 0.3, 0.1))
 #' )
-#' epicurve(df, x = "onset", group = "status",
-#'          title = "Outbreak epicurve", subtitle = "By date of symptom onset")
+#' epicurve(df_cases, x = "onset", group = "status",
+#'          main_group = "Confirmed",
+#'          group_order = c("Confirmed", "Probable", "Possible"),
+#'          title = "Outbreak epicurve",
+#'          subtitle = "By date of symptom onset")
 
 epicurve <- function(data,
                      x = "",
                      y = NULL,
                      group = NULL,
+                     main_group = NULL,
+                     group_order = NULL,
                      colour = NULL,
                      title = NULL,
                      subtitle = NULL,
@@ -4474,14 +4483,40 @@ epicurve <- function(data,
       .groups = "drop"
     )
   
-  if (!is.null(group) && !is.factor(plot_df[[group]])) {
-    plot_df[[group]] <- factor(plot_df[[group]])
+  # ---- Stacking order: main_group first (bottom, darkest) -----------------
+  if (!is.null(group)) {
+    lv <- if (is.factor(plot_df[[group]])) levels(plot_df[[group]]) else
+      sort(unique(as.character(plot_df[[group]])))
+    
+    if (!is.null(group_order)) {
+      missing_lv <- setdiff(unique(as.character(plot_df[[group]])), group_order)
+      if (length(missing_lv) > 0) {
+        stop("`group_order` is missing level(s): ",
+             paste(missing_lv, collapse = ", "))
+      }
+      lv <- group_order
+    }
+    
+    if (!is.null(main_group)) {
+      if (!main_group %in% lv) {
+        stop("`main_group` ('", main_group, "') is not a level of `",
+             group, "`.")
+      }
+      lv <- c(main_group, setdiff(lv, main_group))
+    }
+    
+    plot_df[[group]] <- factor(as.character(plot_df[[group]]), levels = lv)
   }
   
-  # ---- Colours -------------------------------------------------------------
-  default_cols <- c("#1B4F72", "#85A9C9", "#C9D6E3", "#7F8C8D")
+  # ---- Colours (darkest first, matching stacking order) --------------------
+  default_cols <- c("#1B4F72", "#5B8DB8", "#B7CCE0", "#7F8C8D", "#BDC3C7")
   n_levels <- if (is.null(group)) 1 else nlevels(plot_df[[group]])
-  if (is.null(colour)) colour <- default_cols[seq_len(n_levels)]
+  if (is.null(colour)) {
+    if (n_levels > length(default_cols)) {
+      stop("Please supply `colour` when there are more than 5 groups.")
+    }
+    colour <- default_cols[seq_len(n_levels)]
+  }
   
   # ---- Plot ----------------------------------------------------------------
   is_date <- inherits(plot_df[[x]], "Date")
@@ -4565,11 +4600,10 @@ epicurve <- function(data,
 #   )
 # )
 # 
-# epicurve(
-#   data = df_cases,
-#   x = "onset",
-#   group = "status",
-#   title = "Outbreak Epidemic Curve",
-#   subtitle = "Cases by onset date",
-#   bin_width = 1
-# )
+# epicurve(df_cases, x = "onset", group = "status",
+#          main_group = "Confirmed",
+#          group_order = c("Confirmed", "Probable", "Possible"),
+#          title = "Outbreak epicurve",
+#          subtitle = "By date of symptom onset")
+
+
