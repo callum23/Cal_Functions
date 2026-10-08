@@ -4606,4 +4606,4 @@ epicurve <- function(data,
 #          title = "Outbreak epicurve",
 #          subtitle = "By date of symptom onset")
 
-
+ 
